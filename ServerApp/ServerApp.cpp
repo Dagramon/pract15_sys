@@ -4,6 +4,7 @@
 #include <winsock2.h>
 #include <WS2tcpip.h>
 #include <iostream>
+#include <conio.h>
 #define DEFAULT_PORT "27015"
 #define DEFAULT_BUFLEN 512
 
@@ -314,12 +315,21 @@ int main()
         return GetLastError();
     }
 
+    char input{ 0 };
     do {
 
-    } while (true);
+        input = _getch();
+
+    } while (input != 'e');
 
     CloseHandle(connectThread);
     CloseHandle(ClientJoinedEvent);
+    closesocket(ListenSocket);
+    for (int i = 0; i < index; i++)
+    {
+        closesocket(clients[i].socket);
+        CloseHandle(clients[i].ListenThread);
+    }
     WSACleanup();
 
     return 0;
