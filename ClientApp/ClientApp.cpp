@@ -10,10 +10,46 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
+SOCKET ConnectSocket = INVALID_SOCKET;
+bool connected = true;
+
 using namespace std;
+
+DWORD WINAPI ListenThread(LPVOID num)
+{
+	while (ConnectSocket != INVALID_SOCKET) {
+
+		int result;
+		char message[DEFAULT_BUFLEN];
+		result = recv(ConnectSocket, message, DEFAULT_BUFLEN, 0);
+		if (result > 0) {
+			message[result] = '\0';
+			cout << message;
+		}
+		else if (result == 0) {
+
+			if (connected) {
+				cout << "\n[LOG]: Server disconnected" << endl;
+			}
+			break;
+
+		}
+		else
+		{
+			int error = WSAGetLastError();
+			if (error != WSAECONNRESET && connected) {
+				cout << "\n[LOG]: recv failed error: " << error << endl;
+			}
+			break;
+		}
+	}
+}
 
 int main(int argc, char* argv[])
 {
+	SetConsoleCP(1251);
+	SetConsoleOutputCP(1251);
+	setlocale(LC_ALL, "Russian");
 	WSAData wsaData;
 
 	int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -37,7 +73,7 @@ int main(int argc, char* argv[])
 		WSACleanup();
 		return 1;
 	}
-	SOCKET ConnectSocket = INVALID_SOCKET;
+
 	ptr = result;
 	ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
 	if (ConnectSocket == INVALID_SOCKET) {
@@ -58,12 +94,22 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	int recvbuflen = DEFAULT_BUFLEN;
+	HANDLE joinedEvent = OpenEvent(EVENT_ALL_ACCESS, TRUE, (LPCWSTR)"Joined");
 
-	const char* sendbuf = "hello world";
-	char recvbuf[DEFAULT_BUFLEN];
+	if (joinedEvent == NULL)
+	{
+		cout << GetLastError() << endl;
+		return 1;
+	}
 
-	iResult = send(ConnectSocket, sendbuf, (int)strlen(sendbuf), 0);
+	SetEvent(joinedEvent);
+
+	char sendName[DEFAULT_BUFLEN];
+
+	cout << "connection successful, enter your name: ";
+	cin.getline(sendName, DEFAULT_BUFLEN);
+
+	iResult = send(ConnectSocket, sendName, (int)strlen(sendName), 0);
 	if (iResult == SOCKET_ERROR) {
 		cout << "send failed " << WSAGetLastError() << endl;
 		closesocket(ConnectSocket);
@@ -71,25 +117,62 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	iResult = shutdown(ConnectSocket, SD_SEND);
-	if (iResult == SOCKET_ERROR) {
-		cout << "shutdown failed: " << WSAGetLastError() << endl;
+	DWORD idThread;
+	HANDLE listenThread = CreateThread(NULL, 0, ListenThread, (void*)1, 0, &idThread);
+	if (!listenThread) {
 		closesocket(ConnectSocket);
 		WSACleanup();
-		return 1;
+		return GetLastError();
 	}
-	do {
-		iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
-		if (iResult > 0)
-			printf("%.*s\n", iResult, recvbuf + 0);
-		else if (iResult == 0)
-			cout << "Server closed" << endl;
-		else
-			cout << "recv failed: " << WSAGetLastError() << endl;
-	} while (iResult > 0);
 
+	char input[DEFAULT_BUFLEN];
+
+	do { 
+		cin.getline(input, DEFAULT_BUFLEN);
+
+		if (input[0] != '/')
+		{
+			iResult = send(ConnectSocket, input, (int)strlen(input), 0);
+			if (iResult == SOCKET_ERROR) {
+				cout << "send failed " << WSAGetLastError() << endl;
+				closesocket(ConnectSocket);
+				WSACleanup();
+			}
+		}
+		else
+		{
+			if (strcmp(input, "/exit") == 0)
+			{
+				iResult = send(ConnectSocket, input, (int)strlen(input), 0);
+				if (iResult == SOCKET_ERROR) {
+					cout << "send failed " << WSAGetLastError() << endl;
+					closesocket(ConnectSocket);
+					WSACleanup();
+				}
+				break;
+			}
+			if (strcmp(input, "/users") == 0)
+			{
+				iResult = send(ConnectSocket, input, (int)strlen(input), 0);
+				if (iResult == SOCKET_ERROR) {
+					cout << "send failed " << WSAGetLastError() << endl;
+					closesocket(ConnectSocket);
+					WSACleanup();
+				}
+				continue;
+			}
+			cout << "unknown command" << endl;
+		}
+
+	} while (true);
+
+	connected = false;
+	CloseHandle(listenThread);
+	CloseHandle(joinedEvent);
 	closesocket(ConnectSocket);
 	WSACleanup();
+
+	cout << "disconnected" << endl;
 
 	return 0;
 }

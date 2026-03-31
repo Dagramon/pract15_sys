@@ -1,2 +1,3 @@
 ﻿  ClientApp.cpp
-  ClientApp.vcxproj -> C:\Users\st310-10\source\repos\pract15_sys\x64\Debug\ClientApp.exe
+C:\Users\Damir\source\repos\pract15_sys\ClientApp\ClientApp.cpp(46,1): warning C4715: ListenThread: значение возвращается не при всех путях выполнения
+  ClientApp.vcxproj -> C:\Users\Damir\source\repos\pract15_sys\x64\Debug\ClientApp.exe

@@ -1,0 +1,54 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Damir\\source\\repos\\pract15_sys\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{5C5B72D4-CB21-40EB-A992-AC1CB2ADF1EC}|ClientApp\\ClientApp.vcxproj|C:\\Users\\Damir\\source\\repos\\pract15_sys\\ClientApp\\ClientApp.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{5C5B72D4-CB21-40EB-A992-AC1CB2ADF1EC}|ClientApp\\ClientApp.vcxproj|solutionrelative:ClientApp\\ClientApp.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{648D66EC-7C8D-42B7-9FEA-D3241546B8BA}|ServerApp\\ServerApp.vcxproj|C:\\Users\\Damir\\source\\repos\\pract15_sys\\ServerApp\\ServerApp.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{648D66EC-7C8D-42B7-9FEA-D3241546B8BA}|ServerApp\\ServerApp.vcxproj|solutionrelative:ServerApp\\ServerApp.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ClientApp.cpp",
+              "DocumentMoniker": "C:\\Users\\Damir\\source\\repos\\pract15_sys\\ClientApp\\ClientApp.cpp",
+              "RelativeDocumentMoniker": "ClientApp\\ClientApp.cpp",
+              "ToolTip": "C:\\Users\\Damir\\source\\repos\\pract15_sys\\ClientApp\\ClientApp.cpp",
+              "RelativeToolTip": "ClientApp\\ClientApp.cpp",
+              "ViewState": "AgIAABsAAAAAAAAAAAAAACIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-03-30T09:38:35.006Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ServerApp.cpp",
+              "DocumentMoniker": "C:\\Users\\Damir\\source\\repos\\pract15_sys\\ServerApp\\ServerApp.cpp",
+              "RelativeDocumentMoniker": "ServerApp\\ServerApp.cpp",
+              "ToolTip": "C:\\Users\\Damir\\source\\repos\\pract15_sys\\ServerApp\\ServerApp.cpp",
+              "RelativeToolTip": "ServerApp\\ServerApp.cpp",
+              "ViewState": "AgIAAB8AAAAAAAAAAAAiwHwAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-03-30T09:38:27.975Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
