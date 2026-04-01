@@ -30,8 +30,6 @@ SOCKET ListenSocket = INVALID_SOCKET;
 Client clients[256];
 int index = 0;
 
-HANDLE ClientJoinedEvent;
-
 void SendToAllClients(char message[DEFAULT_BUFLEN], int excludeIndex)
 {
     for (int i = 0; i < index; i++)
@@ -71,12 +69,10 @@ DWORD WINAPI ListenThread(LPVOID id)
 
                 char clientMessage[DEFAULT_BUFLEN]{ 0 };
 
-                strcat_s(clientMessage, sizeof(clientMessage), "\033[31m");
                 strcat_s(clientMessage, sizeof(clientMessage), "[SERVER]: user ");
                 strcat_s(clientMessage, sizeof(clientMessage), clients[clientIndex].name);
                 strcat_s(clientMessage, sizeof(clientMessage), " has left the chat");
                 strcat_s(clientMessage, sizeof(clientMessage), "\n");
-                strcat_s(clientMessage, sizeof(clientMessage), "\033[0m");
 
                 SendToAllClients(clientMessage, clientIndex);
 
@@ -95,13 +91,10 @@ DWORD WINAPI ListenThread(LPVOID id)
                 {
                     if (!clients[i].active)
                         continue;
-
-                    strcat_s(usersText, sizeof(usersText), "\033[32m");
+                    strcat_s(usersText, sizeof(usersText), "current users: \n");
                     strcat_s(usersText, sizeof(usersText), clients[i].name);
                     strcat_s(usersText, sizeof(usersText), "\n");
                 }
-
-                strcat_s(usersText, sizeof(usersText), "\033[0m");
 
                 iResult = send(clients[clientIndex].socket, usersText, (int)strlen(usersText), 0);
                 if (iResult == SOCKET_ERROR) {
@@ -112,9 +105,9 @@ DWORD WINAPI ListenThread(LPVOID id)
                 }
             }
             else {
-                if (GetTickCount64() - clients[clientIndex].lastMessage < 1000)
+                if (GetTickCount64() - clients[clientIndex].lastMessage < 500)
                 {
-                    char msg[DEFAULT_BUFLEN] = "\033[31m[SERVER]: DONT SPAM\n\033[0m";
+                    char msg[DEFAULT_BUFLEN] = "[SERVER]: DONT SPAM\n";
                     int iResult;
 
                     iResult = send(clients[clientIndex].socket, msg, (int)strlen(msg), 0);
@@ -130,13 +123,11 @@ DWORD WINAPI ListenThread(LPVOID id)
                 cout << "[LOG]: [" << clients[clientIndex].name << "]: " << message << endl;
 
                 char clientMessage[DEFAULT_BUFLEN] { 0 };
-                strcat_s(clientMessage, sizeof(clientMessage), "\033[36m");
                 strcat_s(clientMessage, sizeof(clientMessage), "[");
                 strcat_s(clientMessage, sizeof(clientMessage), clients[clientIndex].name);
                 strcat_s(clientMessage, sizeof(clientMessage), "]: ");
                 strcat_s(clientMessage, sizeof(clientMessage), message);
                 strcat_s(clientMessage, sizeof(clientMessage), "\n");
-                strcat_s(clientMessage, sizeof(clientMessage), "\033[0m");
 
                 SendToAllClients(clientMessage, clientIndex);
 
@@ -188,9 +179,6 @@ DWORD WINAPI ConnectClient(LPVOID num)
 {
     do {
 
-        WaitForSingleObject(ClientJoinedEvent, INFINITE);
-        ResetEvent(ClientJoinedEvent);
-
         SOCKET ClientSocket = INVALID_SOCKET;
 
         sockaddr i;
@@ -233,12 +221,10 @@ DWORD WINAPI ConnectClient(LPVOID num)
 
                 char clientMessage[DEFAULT_BUFLEN]{ 0 };
 
-                strcat_s(clientMessage, sizeof(clientMessage), "\033[32m");
                 strcat_s(clientMessage, sizeof(clientMessage), "[SERVER]: user ");
                 strcat_s(clientMessage, sizeof(clientMessage), clients[index].name);
                 strcat_s(clientMessage, sizeof(clientMessage), " has joined the chat");
                 strcat_s(clientMessage, sizeof(clientMessage), "\n");
-                strcat_s(clientMessage, sizeof(clientMessage), "\033[0m");
 
                 SendToAllClients(clientMessage, index);
 
@@ -249,14 +235,12 @@ DWORD WINAPI ConnectClient(LPVOID num)
     } while (true);
     return 0;
 }
-int main()
+int main(int argc, char* argv[])
 {
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
     setlocale(LC_ALL, "Russian");
     WSADATA wsaData;
-
-    ClientJoinedEvent = CreateEvent(NULL, FALSE, FALSE, (LPCWSTR)"Joined");
 
     int iResult;
 
@@ -267,14 +251,13 @@ int main()
         return 1;
     }
 
-    struct addrinfo* result = NULL, * ptr = NULL, hints;
+    struct addrinfo* result = NULL, hints;
 
+    memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
     hints.ai_flags = AI_PASSIVE;
-
-    memset(&hints, 0, sizeof(hints));
 
     iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
     if (iResult != 0) {
@@ -300,7 +283,6 @@ int main()
         WSACleanup();
         return 1;
     }
-    freeaddrinfo(result);
 
     if (listen(ListenSocket, SOMAXCONN) == SOCKET_ERROR) {
         cout << "listen failed with error " << WSAGetLastError();
@@ -315,6 +297,8 @@ int main()
         return GetLastError();
     }
 
+    cout << "Server started" << endl;
+
     char input{ 0 };
     do {
 
@@ -323,7 +307,6 @@ int main()
     } while (input != 'e');
 
     CloseHandle(connectThread);
-    CloseHandle(ClientJoinedEvent);
     closesocket(ListenSocket);
     for (int i = 0; i < index; i++)
     {

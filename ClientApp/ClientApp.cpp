@@ -47,6 +47,17 @@ DWORD WINAPI ListenThread(LPVOID num)
 
 int main(int argc, char* argv[])
 {
+	char ip[255]{ 0 };
+
+	if (argc > 1)
+	{
+		strcpy_s(ip, argv[1]);
+	}
+	else
+	{
+		strcpy_s(ip, "127.0.0.1");
+	}
+
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
 	setlocale(LC_ALL, "Russian");
@@ -67,7 +78,7 @@ int main(int argc, char* argv[])
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
 
-	iResult = getaddrinfo(argv[1], DEFAULT_PORT, &hints, &result);
+	iResult = getaddrinfo(ip, DEFAULT_PORT, &hints, &result);
 	if (iResult != 0) {
 		cout << "getaddrinfo failed " << iResult << endl;
 		WSACleanup();
@@ -87,22 +98,12 @@ int main(int argc, char* argv[])
 		closesocket(ConnectSocket);
 		ConnectSocket = INVALID_SOCKET;
 	}
-	freeaddrinfo(result);
 	if (ConnectSocket == INVALID_SOCKET) {
 		cout << "Unable to connect to server" << endl;
 		WSACleanup();
 		return 1;
 	}
-
-	HANDLE joinedEvent = OpenEvent(EVENT_ALL_ACCESS, TRUE, (LPCWSTR)"Joined");
-
-	if (joinedEvent == NULL)
-	{
-		cout << GetLastError() << endl;
-		return 1;
-	}
-
-	SetEvent(joinedEvent);
+	freeaddrinfo(result);
 
 	char sendName[DEFAULT_BUFLEN];
 
@@ -168,7 +169,6 @@ int main(int argc, char* argv[])
 
 	connected = false;
 	CloseHandle(listenThread);
-	CloseHandle(joinedEvent);
 	closesocket(ConnectSocket);
 	WSACleanup();
 
